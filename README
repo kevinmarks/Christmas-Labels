@@ -1,0 +1,7 @@
+A python app to generate christmas mailing labels from Google Contacts CSV files.
+Uses pdfgen from reportlab to make a PDF.
+
+TODO:
+Add a UI
+Make it work on AppEngine (can't write files there)
+Hook up to PoCo via OAuth
