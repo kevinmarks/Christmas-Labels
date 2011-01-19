@@ -465,7 +465,7 @@ def rl_isdir(pn,os_path_isdir=os.path.isdir,os_path_normpath=os.path.normpath):
     if _isFSD or __loader__ is None: return False
     pn = _startswith_rl(os_path_normpath(pn))
     if not pn.endswith(os.sep): pn += os.sep
-    return len(filter(lambda x,pn=pn: x.startswith(pn),__loader__._files.keys()))>0
+    return False #len(filter(lambda x,pn=pn: x.startswith(pn),__loader__._files.keys()))>0
 
 def rl_listdir(pn,os_path_isdir=os.path.isdir,os_path_normpath=os.path.normpath,os_listdir=os.listdir):
     if os_path_isdir(pn) or _isFSD or __loader__ is None: return os_listdir(pn)

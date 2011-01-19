@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Christmas Label Printer</title>
+</head>
+<body>
+<h1>Welcome, {{user}}</h1>
+Glad to have you onboard
+<form action="/addresses.pdf" >
+Name: <input name=user title="User" value="{{user}}" ><p>
+Address:<p><textarea name=address title="Address" rows=6 cols=80 >{{address}}</textarea><p>
+<input name=go type=submit value="Make addresses">
+</form>
+</body>
+</html>
