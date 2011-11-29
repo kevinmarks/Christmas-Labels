@@ -3,6 +3,9 @@
 #
 import os
 
+import csv
+import StringIO
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
@@ -30,11 +33,14 @@ def labelGrid(c,addressList,defaultAddress="test address",across=3, down=10,hGap
     c.setStrokeColorRGB(0,0,0)
     for y in range(down):
         for x in range(across):
-            #c.rect(hMargin+x*(hGap+boxWidth),vMargin+y*(vGap+boxHeight),boxWidth,boxHeight, fill=0,stroke=1)
-            fitTextInBox(c,addresses.next(), hMargin+x*(hGap+boxWidth),vMargin+y*(vGap+boxHeight),boxWidth,boxHeight)
+            c.rect(hMargin+x*(hGap+boxWidth),vMargin+y*(vGap+boxHeight),boxWidth,boxHeight, fill=0,stroke=1)
+            fitTextInBox(c,addresses.next(), hMargin+x*(hGap+boxWidth),pageHeight-(vMargin+boxHeight)-y*(vGap+boxHeight),boxWidth,boxHeight)
              
 def fitTextInBox(c,text,x,y,width,height):
-    lines = text.splitlines()
+    try:
+        lines = text.splitlines()
+    except:
+        return
     fontSize = (height-2*boxMargin)/(len(lines)*leading)
     maxWidth = rawWidth = width-2*boxMargin
     for line in lines:
@@ -58,6 +64,28 @@ class AddressHandler(webapp.RequestHandler):
         labelGrid(c,[],"%s\n%s" % (info['user'],info['address'] ),3,10)
         #fitTextInBox(c, "Goodbye\nSmall World",inch*2,inch*7,inch*4,inch )       
         c.showPage()
+        self.response.headers['Content-Type'] = "application/pdf"
+        c.save()
+
+    def post(self):
+        info['user'] = self.request.get("user","unknown")
+        info['address'] = self.request.get("address","1600 Pennsylvania Avenue")
+        info['addressfile'] = self.request.get("addressfile",None)
+        path = os.path.join(os.path.dirname(__file__), "index.html")
+        self.response.out.write(template.render(path,info))
+        c = canvas.Canvas(self.response.out)
+        c.setPageSize((pageWidth,pageHeight))
+        if info['addressfile']:
+            reader = csv.reader(StringIO.StringIO(info['addressfile']))
+            i = reader.next().index("Address 1 - Formatted")
+            addresses = ["%s\n%s" % (x[0],x[i]) for x in reader if len(x[i])>5]
+            while (addresses):
+                labelGrid(c,addresses[:30],"%s\n%s" % (info['user'],info['address'] ))
+                c.showPage()
+                addresses[0:30]=[]
+        else:
+        	labelGrid(c,[],"%s\n%s" % (info['user'],info['address'] ),3,10)
+        	c.showPage()
         self.response.headers['Content-Type'] = "application/pdf"
         c.save()
 

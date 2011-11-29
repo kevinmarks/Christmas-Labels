@@ -6,11 +6,14 @@
 </head>
 <body>
 <h1>Welcome, {{user}}</h1>
-Glad to have you onboard
-<form action="/addresses.pdf" >
+Please fill in your name and address for return labels, or upload a Google CSV file exported from
+<a href="http://www.google.com/contacts">Google Contacts</a> for individual labels.
+<form action="/addresses.pdf" method="post" enctype="multipart/form-data" >
 Name: <input name=user title="User" value="{{user}}" ><p>
 Address:<p><textarea name=address title="Address" rows=6 cols=80 >{{address}}</textarea><p>
-<input name=go type=submit value="Make addresses">
+Address list file:<input name=addressfile title="AddressFile" type=file ><p>
+<input name=go type=submit value="Make Labels">
 </form>
+Output will be a PDF file.
 </body>
 </html>

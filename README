@@ -2,12 +2,12 @@ A python app to generate christmas mailing labels from Google Contacts CSV files
 Uses pdfgen from reportlab to make a PDF.
 DONE:
 Add a UI
-Make it work on AppEngine (can't write files there)
+Made it work on AppEngine http://xmaslabels.appspot.com
+Add a UI that makes sense for both modes
+work with downloaded contacts
 
 TODO:
 Refactor so label layout definition is in a struct not globals/defaults
-Add a UI that makes sense for both modes
-work with downloaded contacts
 store label layouts
 Hook up to PoCo via OAuth
 
