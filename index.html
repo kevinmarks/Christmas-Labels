@@ -12,6 +12,10 @@ Please fill in your name and address for return labels, or upload a Google CSV f
 Name: <input name=user title="User" value="{{user}}" ><p>
 Address:<p><textarea name=address title="Address" rows=6 cols=80 >{{address}}</textarea><p>
 Address list file:<input name=addressfile title="AddressFile" type=file ><p>
+Template:<select id=template name=template>
+			<option value="Avery5160" selected>Avery 5160</option>
+			<option value="AveryXmas">Avery Xmas</option>
+		</select>
 <input name=go type=submit value="Make Labels">
 </form>
 Output will be a PDF file.

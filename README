@@ -5,9 +5,10 @@ Add a UI
 Made it work on AppEngine http://xmaslabels.appspot.com
 Add a UI that makes sense for both modes
 work with downloaded contacts
+Refactor so label layout definition is in a struct not globals/defaults
 
 TODO:
-Refactor so label layout definition is in a struct not globals/defaults
-store label layouts
+store label layouts and make them editable
 Hook up to PoCo via OAuth
+Support vcard files too
 
