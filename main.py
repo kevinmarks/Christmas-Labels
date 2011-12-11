@@ -81,9 +81,12 @@ class AddressHandler(webapp.RequestHandler):
         c = canvas.Canvas(self.response.out)
         c.setPageSize((pageWidth,pageHeight))
         if info['addressfile']:
-            reader = csv.reader(StringIO.StringIO(info['addressfile']))
-            i = reader.next().index("Address 1 - Formatted")
-            addresses = ["%s\n%s" % (x[0],x[i]) for x in reader if len(x[i])>5]
+            try:
+                reader = csv.reader(StringIO.StringIO(info['addressfile']))
+                i = reader.next().index("Address 1 - Formatted")
+                addresses = ["%s\n%s" % (x[0],x[i]) for x in reader if len(x[i])>5]
+            except:
+                addresses = ["No Addresses Found\nin your file\nemail:help@xmllabels.com",]
             while (addresses):
                 labelGridType(c,addresses[:30],"%s\n%s" % (info['user'],info['address'] ),labelTypes[info['template']])
                 c.showPage()
