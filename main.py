@@ -15,8 +15,10 @@ pageWidth  = inch*8.5
 pageHeight = inch*11.0
 leading =1.2
 boxMargin = inch*.125
-labelTypes =    {   "Avery5160":{"across":3,"down":10,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5},
-                    "AveryXmas":{"across":3,"down":10,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.5,"vMargin":inch*.5}
+labelTypes =    {   "Avery5160":{"across":3,"down":10,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5, "leftIndent":0},
+                    "AveryXmas":{"across":3,"down":10,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5, "leftIndent":inch*.5},
+                    "Avery5163":{"across":2,"down":5,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5, "leftIndent":0},
+                    "Avery5164":{"across":2,"down":3,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5, "leftIndent":0}
                 }
 
 info={'user':'unknown'}
@@ -24,14 +26,14 @@ info={'user':'unknown'}
 class MainHandler(webapp.RequestHandler):
     def get(self):
         info['user'] = self.request.get("user","unknown")
-        info['address'] = self.request.get("address","1600 Pennsylvania Avenue")
+        info['address'] = self.request.get("address","1600 Pennsylvania Avenue NW\nWashington, DC 20500")
         path = os.path.join(os.path.dirname(__file__), "index.html")
         self.response.out.write(template.render(path,info))
 
 def labelGridType(c,addressList,defaultAddress="test address",temp=labelTypes["Avery5160"],drawEdges=False):
-     labelGrid(c,addressList,defaultAddress,temp["across"], temp["down"], temp["hGap"], temp["vGap"], temp["hMargin"], temp["vMargin"], drawEdges)
+     labelGrid(c,addressList,defaultAddress,temp["across"], temp["down"], temp["hGap"], temp["vGap"], temp["hMargin"], temp["vMargin"], temp["leftIndent"], drawEdges)
 
-def labelGrid(c,addressList,defaultAddress="test address",across=3, down=10,hGap=inch*.375,vGap=inch*.125,hMargin=inch*.25,vMargin=inch*.5,drawEdges=False):
+def labelGrid(c,addressList,defaultAddress="test address",across=3, down=10,hGap=inch*.375,vGap=inch*.125,hMargin=inch*.25,vMargin=inch*.5, leftIndent=0,drawEdges=False):
     boxWidth = (pageWidth-(hMargin*2+hGap*(across-1)))/across
     boxHeight = (pageHeight-(vMargin*2+vGap*(down-1)))/down
     addressList.extend([defaultAddress]*(across*down-len(addressList))) # work around not having proper next()
@@ -41,7 +43,7 @@ def labelGrid(c,addressList,defaultAddress="test address",across=3, down=10,hGap
         for x in range(across):
             if (drawEdges):
                 c.rect(hMargin+x*(hGap+boxWidth),pageHeight-(vMargin+boxHeight+vGap)-y*(vGap+boxHeight),boxWidth,boxHeight, fill=0,stroke=1)
-            fitTextInBox(c,addresses.next(), hMargin+x*(hGap+boxWidth),pageHeight-(vMargin+boxHeight+vGap)-y*(vGap+boxHeight),boxWidth,boxHeight)
+            fitTextInBox(c,addresses.next(), hMargin+x*(hGap+boxWidth)+leftIndent ,pageHeight-(vMargin+boxHeight+vGap)-y*(vGap+boxHeight),boxWidth-leftIndent,boxHeight)
              
 def fitTextInBox(c,text,x,y,width,height):
     try:
