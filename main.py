@@ -15,10 +15,12 @@ pageWidth  = inch*8.5
 pageHeight = inch*11.0
 leading =1.2
 boxMargin = inch*.125
-labelTypes =    {   "Avery5160":{"across":3,"down":10,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5, "leftIndent":0},
-                    "AveryXmas":{"across":3,"down":10,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5, "leftIndent":inch*.5},
-                    "Avery5163":{"across":2,"down":5,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5, "leftIndent":0},
-                    "Avery5164":{"across":2,"down":3,"hGap":inch*.375,"vGap":inch*.125,"hMargin":inch*.25,"vMargin":inch*.5, "leftIndent":0}
+# across and down are no of labels in each direction. hMargin and vMargin space around the edges; hGap and vGap space between labels
+# leftIndent is a per label space for an image on the LHS of the label; topOffset is for labels that are asymmetric vertically
+labelTypes =    {   "Avery5160":{"across":3, "down":10 },
+                    "AveryXmas":{"across":3, "down":10, "leftIndent":inch*.5625, "topOffset":inch/16.0},
+                    "Avery5163":{"across":2, "down":5},
+                    "Avery5164":{"across":2, "down":3}
                 }
 
 info={'user':'unknown'}
@@ -31,9 +33,14 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write(template.render(path,info))
 
 def labelGridType(c,addressList,defaultAddress="test address",temp=labelTypes["Avery5160"],drawEdges=False):
-     labelGrid(c,addressList,defaultAddress,temp["across"], temp["down"], temp["hGap"], temp["vGap"], temp["hMargin"], temp["vMargin"], temp["leftIndent"], drawEdges)
-
-def labelGrid(c,addressList,defaultAddress="test address",across=3, down=10,hGap=inch*.375,vGap=inch*.125,hMargin=inch*.25,vMargin=inch*.5, leftIndent=0,drawEdges=False):
+    across = temp.get('across',3)
+    down = temp.get("down",10)
+    hGap = temp.get("hGap",inch*.25)
+    vGap = temp.get("vGap",inch*.125)
+    hMargin = temp.get("hMargin",inch*.25)
+    vMargin = temp.get("vMargin",inch*.5625)
+    leftIndent = temp.get("leftIndent",0)
+    topOffset = temp.get("topOffset",0)
     boxWidth = (pageWidth-(hMargin*2+hGap*(across-1)))/across
     boxHeight = (pageHeight-(vMargin*2+vGap*(down-1)))/down
     addressList.extend([defaultAddress]*(across*down-len(addressList))) # work around not having proper next()
@@ -42,8 +49,8 @@ def labelGrid(c,addressList,defaultAddress="test address",across=3, down=10,hGap
     for y in range(down):
         for x in range(across):
             if (drawEdges):
-                c.rect(hMargin+x*(hGap+boxWidth),pageHeight-(vMargin+boxHeight+vGap)-y*(vGap+boxHeight),boxWidth,boxHeight, fill=0,stroke=1)
-            fitTextInBox(c,addresses.next(), hMargin+x*(hGap+boxWidth)+leftIndent ,pageHeight-(vMargin+boxHeight+vGap)-y*(vGap+boxHeight),boxWidth-leftIndent,boxHeight)
+                c.rect(hMargin+x*(hGap+boxWidth),pageHeight-(vMargin+boxHeight+vGap+topOffset)-y*(vGap+boxHeight),boxWidth,boxHeight, fill=0,stroke=1)
+            fitTextInBox(c,addresses.next(), hMargin+x*(hGap+boxWidth)+leftIndent ,pageHeight-(vMargin+boxHeight+vGap+topOffset)-y*(vGap+boxHeight),boxWidth-leftIndent,boxHeight)
              
 def fitTextInBox(c,text,x,y,width,height):
     try:
@@ -63,18 +70,6 @@ def fitTextInBox(c,text,x,y,width,height):
         baseline -= fontSize*leading
 
 class AddressHandler(webapp.RequestHandler):
-    def get(self):
-        info['user'] = self.request.get("user","unknown")
-        info['address'] = self.request.get("address","1600 Pennsylvania Avenue")
-        info['template'] = self.request.get("template","Avery5160")
-        path = os.path.join(os.path.dirname(__file__), "index.html")
-        #self.response.out.write(template.render(path,info))
-        c = canvas.Canvas(self.response.out)
-        c.setPageSize((pageWidth,pageHeight))
-        labelGridType(c,[],"%s\n%s" % (info['user'],info['address'] ),info['template'])
-        c.showPage()
-        self.response.headers['Content-Type'] = "application/pdf"
-        c.save()
 
     def post(self):
         info['user'] = self.request.get("user","unknown")
@@ -82,7 +77,7 @@ class AddressHandler(webapp.RequestHandler):
         info['addressfile'] = self.request.get("addressfile",None)
         info['template'] = self.request.get("template","Avery5160")
         path = os.path.join(os.path.dirname(__file__), "index.html")
-        self.response.out.write(template.render(path,info))
+        #self.response.out.write(template.render(path,info))
         c = canvas.Canvas(self.response.out)
         c.setPageSize((pageWidth,pageHeight))
         if info['addressfile']:
