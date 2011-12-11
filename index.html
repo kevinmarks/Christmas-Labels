@@ -5,21 +5,31 @@
 <title>Christmas Label Printer</title>
 </head>
 <body>
+So, you want to mail out Christmas Cards, but you don't want to hand address all those envelopes.
+Try the
 <h1>Christmas Label Printer</h1>
-Please fill in your name and address for return labels, or upload a Google CSV file exported from
-<a href="http://www.google.com/contacts">Google Contacts</a> for individual labels.
+<h2>First, tell us what kind of labels on paper you are using:</h2>
 <form action="/addresses.pdf" method="post" enctype="multipart/form-data" >
-Name: <input name=user title="User" value="{{user}}" ><p>
-Address:<p><textarea name=address title="Address" rows=6 cols=80 >{{address}}</textarea><p>
-Address list file:<input name=addressfile title="AddressFile" type=file ><p>
 Template:<select id=template name=template>
 			<option value="Avery5160" selected>3 across 10 down (Avery 5160)</option>
 			<option value="AveryXmas">3 across 10 down Xmas</option>
 			<option value="Avery5163">2 across 5 down (Avery 5163)</option>
 			<option value="Avery5164">2 across 3 down (Avery 5164)</option>
 		</select>
+<aside>If we don't have your labels here, <a href="mailto:help@xmaslabels.com?subject=New+label+type">email us</a> with details. </aside>		
+<h2>Second, fill in your Name and Address</h2>
+Then you can make return labels for the top left of the envelope.<p>
+Name: <input name=user title="User" value="{{user}}" ><p>
+Address:<p><textarea name=address title="Address" rows=6 cols=80 >{{address}}</textarea><p>
+<aside>Use multiple lines for an address to make it fit the labels better.</aside>
+<h2>Next, upload a list of contacts with addresses</h2>
+Go to <a href="http://www.google.com/contacts">Google Contacts</a>, Export a group to a Google CSV file.<p>
+Address list file:<input name=addressfile title="AddressFile" type=file ><p>
+<aside> You don't have to do this, it'll just print out your address then. Do <a href="mailto:help@xmaslabels.com?subject=New+address+file">email us</a> if you want another kind of Address List supported.</aside>
+<h2>Finally click the "Make Labels" button</h2>
 <input name=go type=submit value="Make Labels">
 </form>
-Output will be a PDF file.
+You'll get a PDF file , which you should print out after you have put the label paper in your printer.<p>
+<footer>PS, if you're a hacker and want to contribute, the <a href="https://github.com/kevinmarks/Christmas-Labels">code</a> is on github.</footer>
 </body>
 </html>
