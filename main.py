@@ -11,8 +11,9 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
-pageWidth  = inch*8.5
-pageHeight = inch*11.0
+from reportlab.lib.units import mm
+usPageWidth  = inch*8.5
+usPageHeight = inch*11.0
 leading =1.2
 boxMargin = inch*.125
 # across and down are no of labels in each direction. hMargin and vMargin space around the edges; hGap and vGap space between labels
@@ -20,7 +21,8 @@ boxMargin = inch*.125
 labelTypes =    {   "Avery5160":{"across":3, "down":10 },
                     "AveryXmas":{"across":3, "down":10, "leftIndent":inch*.5625, "topOffset":inch/16.0},
                     "Avery5163":{"across":2, "down":5},
-                    "Avery5164":{"across":2, "down":3}
+                    "Avery5164":{"across":2, "down":3},
+                    "Avery7160":{"across":3, "down":7, "pageWidth":mm*210,"pageHeight":mm*297}
                 }
 
 info={'user':'unknown'}
@@ -41,6 +43,9 @@ def labelGridType(c,addressList,defaultAddress="test address",temp=labelTypes["A
     vMargin = temp.get("vMargin",inch*.5625)
     leftIndent = temp.get("leftIndent",0)
     topOffset = temp.get("topOffset",0)
+    pageWidth = temp.get("pageWidth", usPageWidth)
+    pageHeight = temp.get("pageHeight", usPageHeight)    
+    
     boxWidth = (pageWidth-(hMargin*2+hGap*(across-1)))/across
     boxHeight = (pageHeight-(vMargin*2+vGap*(down-1)))/down
     addressList.extend([defaultAddress]*(across*down-len(addressList))) # work around not having proper next()
@@ -77,7 +82,8 @@ class AddressHandler(webapp.RequestHandler):
         info['addressfile'] = self.request.get("addressfile",None)
         info['template'] = self.request.get("template","Avery5160")
         path = os.path.join(os.path.dirname(__file__), "index.html")
-        #self.response.out.write(template.render(path,info))
+        pageWidth = labelTypes[info['template']].get("pageWidth", usPageWidth)
+        pageHeight = labelTypes[info['template']].get("pageHeight", usPageHeight)
         c = canvas.Canvas(self.response.out)
         c.setPageSize((pageWidth,pageHeight))
         if info['addressfile']:
