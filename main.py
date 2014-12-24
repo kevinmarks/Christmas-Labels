@@ -19,10 +19,13 @@ boxMargin = inch*.125
 # across and down are no of labels in each direction. hMargin and vMargin space around the edges; hGap and vGap space between labels
 # leftIndent is a per label space for an image on the LHS of the label; topOffset is for labels that are asymmetric vertically
 labelTypes =    {   "Avery5160":{"across":3, "down":10 },
+                    "Avery5160centred":{"across":3, "down":10, "centreText":True },
                     "AveryXmas":{"across":3, "down":10, "leftIndent":inch*.5625, "topOffset":inch/16.0},
                     "Avery5163":{"across":2, "down":5},
                     "Avery5164":{"across":2, "down":3},
-                    "Avery7160":{"across":3, "down":7, "pageWidth":mm*210,"pageHeight":mm*297}
+                    "Avery7160":{"across":3, "down":7, "pageWidth":mm*210,"pageHeight":mm*297},
+                    "BallJar":{"across":3, "down":4, "pageWidth":7.125*inch,"pageHeight":inch*5.0, 
+                        "hGap":inch, "vGap":inch*.5, "centreText":True, "hMargin":inch*.5, "vMargin":inch*.25, "topOffset":-.5*inch } 
                 }
 
 info={'user':'unknown'}
@@ -45,6 +48,7 @@ def labelGridType(c,addressList,defaultAddress="test address",temp=labelTypes["A
     topOffset = temp.get("topOffset",0)
     pageWidth = temp.get("pageWidth", usPageWidth)
     pageHeight = temp.get("pageHeight", usPageHeight)    
+    centreText = temp.get("centreText", False)
     
     boxWidth = (pageWidth-(hMargin*2+hGap*(across-1)))/across
     boxHeight = (pageHeight-(vMargin*2+vGap*(down-1)))/down
@@ -55,9 +59,9 @@ def labelGridType(c,addressList,defaultAddress="test address",temp=labelTypes["A
         for x in range(across):
             if (drawEdges):
                 c.rect(hMargin+x*(hGap+boxWidth),pageHeight-(vMargin+boxHeight+vGap+topOffset)-y*(vGap+boxHeight),boxWidth,boxHeight, fill=0,stroke=1)
-            fitTextInBox(c,addresses.next(), hMargin+x*(hGap+boxWidth)+leftIndent ,pageHeight-(vMargin+boxHeight+vGap+topOffset)-y*(vGap+boxHeight),boxWidth-leftIndent,boxHeight)
+            fitTextInBox(c,addresses.next(), hMargin+x*(hGap+boxWidth)+leftIndent ,pageHeight-(vMargin+boxHeight+vGap+topOffset)-y*(vGap+boxHeight),boxWidth-leftIndent,boxHeight,centreText)
              
-def fitTextInBox(c,text,x,y,width,height):
+def fitTextInBox(c,text,x,y,width,height, centreText=False):
     try:
         lines = text.splitlines()
     except:
@@ -71,7 +75,10 @@ def fitTextInBox(c,text,x,y,width,height):
     baseline=y+height-(fontSize+boxMargin)
     c.setFont("Helvetica", fontSize)
     for line in lines:
-        c.drawString(x+boxMargin,baseline,line)
+        if (centreText):
+            c.drawString(x+(width-c.stringWidth(line,"Helvetica",fontSize))/2.0,baseline,line)
+        else:
+            c.drawString(x+boxMargin,baseline,line)
         baseline -= fontSize*leading
 
 class AddressHandler(webapp.RequestHandler):
@@ -92,7 +99,7 @@ class AddressHandler(webapp.RequestHandler):
                 i = reader.next().index("Address 1 - Formatted")
                 addresses = ["%s\n%s" % (x[0],x[i]) for x in reader if len(x[i])>5]
             except:
-                addresses = ["No Addresses Found\nin your file\nemail:help@xmllabels.com",]
+                addresses = ["No Addresses Found\nin your file\nemail:help@xmaslabels.com",]
             while (addresses):
                 labelGridType(c,addresses[:30],"%s\n%s" % (info['user'],info['address'] ),labelTypes[info['template']])
                 c.showPage()
